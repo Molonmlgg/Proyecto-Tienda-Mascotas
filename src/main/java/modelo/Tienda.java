@@ -7,39 +7,37 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Clase principal que gestiona el inventario de mascotas, suministros y el presupuesto del jugador.
- * Implementa el patrón de diseño Singleton para asegurar que solo exista una instancia
- * de la tienda durante toda la ejecución del juego.
+ * Clase principal que gestiona el inventario de la tienda, el presupuesto y las mascotas.
+ * Implementa el patrón de diseño Singleton para asegurar una única instancia global.
  * * @author Cristóbal Araya Lillo
  */
 public class Tienda {
 
     private static Tienda instanciaUnica;
-
     private double presupuesto;
     private List<Mascota> inventarioMascotas;
     private Map<TipoSuministro, Integer> inventarioSuministros;
     private MascotaFactory fabrica;
 
     /**
-     * Constructor privado para evitar que otras clases usen "new Tienda()".
-     * Parte del patrón Singleton.
+     * Constructor privado de Tienda.
+     * Inicializa el presupuesto, las listas de inventario y otorga 10 unidades
+     * de cada suministro inicial para poder comenzar el simulador.
      */
     private Tienda() {
-        presupuesto = 1000;
-        inventarioMascotas = new ArrayList<>();
-        inventarioSuministros = new HashMap<>();
-        fabrica = new MascotaFactory();
+        this.presupuesto = 1000.0;
+        this.inventarioMascotas = new ArrayList<>();
+        this.inventarioSuministros = new HashMap<>();
+        this.fabrica = new MascotaFactory();
 
-        // Inicializar el inventario de suministros en 0 usando el Enum
         for (TipoSuministro tipo : TipoSuministro.values()) {
-            inventarioSuministros.put(tipo, 0);
+            inventarioSuministros.put(tipo, 10);
         }
     }
 
     /**
-     * Obtiene la única instancia válida de la Tienda.
-     * @return La instancia Singleton de Tienda.
+     * Obtiene la instancia única de la Tienda.
+     * * @return instancia de la clase Tienda.
      */
     public static Tienda getInstance() {
         if (instanciaUnica == null) {
@@ -49,176 +47,92 @@ public class Tienda {
     }
 
     /**
-     * Compra una mascota y la añade al inventario.
-     * @param tipo El tipo de mascota ("perro", "gato", etc.)
-     * @param nombre El nombre de la mascota.
-     * @param precio El costo de la mascota.
-     * @throws PresupuestoInsuficienteException Si el precio supera el dinero disponible.
+     * Permite comprar una mascota y agregarla al inventario si hay fondos suficientes.
+     * * @param tipo El tipo de mascota a crear (ej. "perro", "gato").
+     * @param nombre El nombre que se le asignará a la mascota.
+     * @param precio El costo de la mascota a descontar del presupuesto.
+     * @throws PresupuestoInsuficienteException si el precio supera el presupuesto actual.
      */
-    public void comprarMascota(String tipo, String nombre, double precio)
-            throws PresupuestoInsuficienteException {
-        if (nombre == null || nombre.isBlank()){
-            throw new IllegalArgumentException("Debe ingresar un nombre.");
+    public void comprarMascota(String tipo, String nombre, double precio) throws PresupuestoInsuficienteException {
+        if (precio > presupuesto) {
+            throw new PresupuestoInsuficienteException("No tienes dinero para comprar a " + nombre);
         }
-        if (precio <= 0){
-            throw new IllegalArgumentException("El precio debe ser mayor que cero");
-        }
-
-        descontarPresupuesto(precio);
-
         Mascota nuevaMascota = fabrica.crearMascota(tipo, nombre, precio);
-        if (nuevaMascota == null){
-            return;
+        if (nuevaMascota != null) {
+            this.presupuesto -= precio;
+            this.inventarioMascotas.add(nuevaMascota);
         }
-        inventarioMascotas.add(nuevaMascota);
-
     }
 
     /**
-     * Vende una mascota a un cliente virtual, eliminándola del inventario y aumentando el presupuesto.
-     * @param mascota La mascota a vender.
-     * @param precioVenta El dinero que paga el cliente virtual.
+     * Vende una mascota y la remueve del inventario, aumentando el presupuesto.
+     * * @param mascota La mascota que se desea vender.
+     * @param precioVenta El monto de dinero que se sumará al presupuesto.
      */
     public void venderMascota(Mascota mascota, double precioVenta) {
-        if (mascota == null){
-            return;
+        if (inventarioMascotas.remove(mascota)) {
+            this.presupuesto += precioVenta;
         }
-        if (!inventarioMascotas.remove(mascota)){
-            return;
-        }
-
-        aumentarPresupuesto(precioVenta);
-
-        System.out.println("Has vendido a "
-                + mascota.getNombre()
-                + " por $" + precioVenta);
     }
 
     /**
-     * Busca una mascota por su nombre
-     * @param nombre nombre de la mascota
-     * @return la mascota encontrada o null si no existe
-     */
-    public Mascota buscarMascota(String nombre) {
-        if (nombre == null){
-            return null;
-        }
-        for (Mascota mascota : inventarioMascotas){
-            if (mascota.getNombre().equalsIgnoreCase(nombre)){
-                return mascota;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Verifica si una mascota existe
-     * @param nombre nombre de la mascota
-     * @return true si existe
-     */
-    public boolean existeMascota(String nombre){
-        return buscarMascota(nombre) != null;
-    }
-
-    /**
-     * Compra un suministro específico para la tienda.
-     * @param tipo El tipo de suministro definido en el Enum.
-     * @param cantidad La cantidad a comprar.
-     * @param costoTotal El costo total de la compra.
-     * @throws PresupuestoInsuficienteException Si no hay fondos.
+     * Compra unidades de un suministro específico para la tienda.
+     * * @param tipo El tipo de suministro a comprar (enum TipoSuministro).
+     * @param cantidad La cantidad de unidades a agregar al inventario.
+     * @param costoTotal El costo total de la transacción a descontar.
+     * @throws PresupuestoInsuficienteException si el costo supera el presupuesto.
      */
     public void comprarSuministro(TipoSuministro tipo, int cantidad, double costoTotal) throws PresupuestoInsuficienteException {
-        if (cantidad <= 0){
-            throw new IllegalArgumentException("La cantidad debe ser mayor que cero.");
+        if (costoTotal > presupuesto) {
+            throw new PresupuestoInsuficienteException("No tienes fondos para comprar suministros.");
         }
-        if (costoTotal <= 0){
-            throw new IllegalArgumentException("El costo debe ser mayor que cero.");
-        }
-
-        descontarPresupuesto(costoTotal);
-        int cantidadActual = inventarioSuministros.get(tipo);
-        inventarioSuministros.put(tipo, cantidadActual + cantidad);
+        this.presupuesto -= costoTotal;
+        inventarioSuministros.put(tipo, inventarioSuministros.get(tipo) + cantidad);
     }
 
     /**
-     * Consume una cantidad de un suministro
-     * @param tipo tipo de suministro
-     * @return true si pudo consumirlo
+     * Consume una unidad de un suministro específico si existe disponibilidad.
+     * * @param tipo El tipo de suministro que se desea consumir.
+     * @return true si el suministro fue consumido exitosamente, false si no había stock.
      */
-    public boolean consumirSuministro(TipoSuministro tipo){
-        if (tipo == null){
-            return false;
-        }
-        int cantidad = inventarioSuministros.get(tipo);
-        if (cantidad > 0){
-            inventarioSuministros.put(tipo, cantidad-1);
+    public boolean consumirSuministro(TipoSuministro tipo) {
+        int cantidadActual = inventarioSuministros.getOrDefault(tipo, 0);
+        if (cantidadActual > 0) {
+            inventarioSuministros.put(tipo, cantidadActual - 1);
             return true;
         }
         return false;
     }
 
     /**
-     * Obtiene la cantidad disponible de un suministro
-     * @param tipo tipo de suministro
-     * @return cantidad disponible
+     * Busca una mascota en el inventario actual mediante su nombre.
+     * * @param nombre El nombre exacto de la mascota a buscar.
+     * @return La mascota encontrada o null si no existe en el inventario.
      */
-    public int getCantidadSuministro(TipoSuministro tipo){
-        return inventarioSuministros.get(tipo);
-    }
-
-    /**
-     * Obtiene la cantidad de mascotas
-     * @return numero de mascotas
-     */
-    public int getCantidadMascota(){
-        return inventarioMascotas.size();
-    }
-
-    /**
-     * Descuenta dinero del presupuesto
-     * @param monto dinero a descontar
-     * @throws PresupuestoInsuficienteException si no hay fondos
-     */
-    private void descontarPresupuesto(double monto) throws PresupuestoInsuficienteException{
-        if (monto > presupuesto){
-            throw new PresupuestoInsuficienteException("No tienes presupuesto suficiente.");
+    public Mascota buscarMascota(String nombre) {
+        for (Mascota m : inventarioMascotas) {
+            if (m.getNombre().equalsIgnoreCase(nombre)) {
+                return m;
+            }
         }
-        presupuesto -= monto;
+        return null;
     }
 
     /**
-     * Aumenta el presupuesto
-     * @param monto dinero a agregar
-     */
-    private void aumentarPresupuesto(double monto){
-        if (monto > 0){
-            presupuesto += monto;
-        }
-    }
-
-    // Getters y Setters
-
-    /**
-     * Obtiene el presupuesto disponible
-     * @return presupuesto
+     * Obtiene el presupuesto actual de la tienda.
+     * @return cantidad de dinero disponible.
      */
     public double getPresupuesto() { return presupuesto; }
 
     /**
-     * Modifica el presupuesto
-     * @param presupuesto nuevo presupuesto
-     */
-    public void setPresupuesto(double presupuesto) { this.presupuesto = presupuesto; }
-
-    /**
-     * Obtiene el invetario de mascotas
-     * @return lista de mascotas
+     * Obtiene la lista completa de mascotas en el inventario.
+     * @return lista de mascotas.
      */
     public List<Mascota> getInventarioMascotas() { return inventarioMascotas; }
 
     /**
-     * Obtiene el inventario de suministros
-     * @return mapa de suministros
+     * Obtiene el mapa completo de los suministros actuales y sus cantidades.
+     * @return mapa de suministros.
      */
     public Map<TipoSuministro, Integer> getInventarioSuministros() { return inventarioSuministros; }
 }

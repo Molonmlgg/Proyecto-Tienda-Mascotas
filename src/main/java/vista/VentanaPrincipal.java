@@ -5,151 +5,191 @@ import excepciones.PresupuestoInsuficienteException;
 import modelo.Mascota;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.IOException;
 
 /**
- * Ventana principal que fusiona el hábitat visual con la lógica del juego.
- * @author Cristóbal Araya Lillo
+ * Ventana gráfica principal que integra la lógica del controlador Juego
+ * con la renderización del hábitat y los estados de la mascota.
+ * * @author Cristóbal Araya Lillo
  */
 public class VentanaPrincipal extends JFrame {
 
-    private Juego juego;
-    private JProgressBar barHambre, barFelicidad;
+    private final Juego juego;
+    private JProgressBar barHambre, barFelicidad, barSalud, barHigiene;
+    private BufferedImage imgMascota;
     private Timer gameLoop;
 
+    /**
+     * Constructor de la ventana principal.
+     * Inicializa el controlador, intenta efectuar una compra inicial de mascota,
+     * configura la ventana de Swing e inicia el bucle de eventos del juego.
+     */
     public VentanaPrincipal() {
-        juego = new Juego();
+        this.juego = new Juego();
 
-        try{
+        try {
             juego.comprarMascota("perro", "Cachupin", 100);
-        } catch (PresupuestoInsuficienteException e){
-            JOptionPane.showMessageDialog(this, e.getMessage());
+            cargarImagenMascota("perro");
+        } catch (PresupuestoInsuficienteException e) {
+            JOptionPane.showMessageDialog(this, "Error inicial: " + e.getMessage());
         }
 
-        setTitle("Simulador: " + juego.getMascotaActiva().getNombre());
-        setSize(800, 600);
+        setTitle("Simulador: " + (juego.getMascotaActiva() != null ? juego.getMascotaActiva().getNombre() : "Sin mascota"));
+        setSize(800, 650);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         setContentPane(new HabitatPanel());
-
         iniciarGameLoop();
     }
 
     /**
-     * Panel encargado de dibujar el hábitat y contener los controles
+     * Intenta cargar el archivo de imagen ("sprite") de la mascota desde la carpeta resources.
+     * * @param tipo El tipo de mascota para armar el nombre del archivo (ej. "perro.png").
+     */
+    private void cargarImagenMascota(String tipo) {
+        try {
+            String ruta = "/resources/" + tipo.toLowerCase() + ".png";
+            imgMascota = ImageIO.read(getClass().getResource(ruta));
+        } catch (IOException | IllegalArgumentException e) {
+            imgMascota = null;
+        }
+    }
+
+    /**
+     * Clase interna que representa el panel gráfico donde se dibuja
+     * el hábitat de la mascota y se ubican los controles de estado.
      */
     private class HabitatPanel extends JPanel {
 
+        /**
+         * Constructor del panel del hábitat. Configura las barras de progreso
+         * y los botones de interacción del usuario.
+         */
         public HabitatPanel() {
-
             setLayout(new BorderLayout());
 
-            // Panel Superior: Estado
-            JPanel panelEstado = new JPanel(new GridLayout(2, 2, 5, 5));
-            panelEstado.setOpaque(false); // Transparente para ver el fondo
+            JPanel panelEstado = new JPanel(new GridLayout(2, 4, 10, 5));
+            panelEstado.setOpaque(false);
 
-            barHambre = crearBarra(juego.getMascotaActiva().getNivelHambre(), Color.RED);
-            barFelicidad = crearBarra(juego.getMascotaActiva().getNivelFelicidad(), Color.GREEN);
+            barHambre = crearBarra(0, Color.RED);
+            barFelicidad = crearBarra(100, Color.GREEN);
+            barSalud = crearBarra(100, Color.BLUE);
+            barHigiene = crearBarra(100, Color.CYAN);
 
-            panelEstado.add(new JLabel(" Hambre:"));
-            panelEstado.add(barHambre);
+            panelEstado.add(new JLabel(" Hambre:")); panelEstado.add(barHambre);
+            panelEstado.add(new JLabel(" Felicidad:")); panelEstado.add(barFelicidad);
+            panelEstado.add(new JLabel(" Salud:")); panelEstado.add(barSalud);
+            panelEstado.add(new JLabel(" Higiene:")); panelEstado.add(barHigiene);
+            add(panelEstado, BorderLayout.NORTH);
 
-            panelEstado.add(new JLabel(" Felicidad:"));
-            panelEstado.add(barFelicidad);
-
-            this.add(panelEstado, BorderLayout.NORTH);
-
-            // Panel Inferior: Acciones
             JPanel panelAcciones = new JPanel();
             panelAcciones.setOpaque(false);
 
             JButton btnAlimentar = new JButton("Alimentar");
             JButton btnJugar = new JButton("Jugar");
+            JButton btnCurar = new JButton("Curar");
 
             btnAlimentar.addActionListener(e -> {
-                juego.alimentarMascota();
+                if (!juego.alimentarMascota()) {
+                    JOptionPane.showMessageDialog(VentanaPrincipal.this, "¡No tienes Comida Premium en el inventario!");
+                }
                 actualizarInterfaz();
             });
 
             btnJugar.addActionListener(e -> {
-                juego.jugarConMascota();
+                if (!juego.jugarConMascota()) {
+                    JOptionPane.showMessageDialog(VentanaPrincipal.this, "¡Esta mascota no quiere o no puede jugar ahora!");
+                }
+                actualizarInterfaz();
+            });
+
+            btnCurar.addActionListener(e -> {
+                if (!juego.curarMascota()) {
+                    JOptionPane.showMessageDialog(VentanaPrincipal.this, "¡No tienes Medicina Básica en el inventario!");
+                }
                 actualizarInterfaz();
             });
 
             panelAcciones.add(btnAlimentar);
             panelAcciones.add(btnJugar);
-
-            this.add(panelAcciones, BorderLayout.SOUTH);
+            panelAcciones.add(btnCurar);
+            add(panelAcciones, BorderLayout.SOUTH);
         }
 
         /**
-         * Dibuja el habitat
+         * Método sobrescrito de Swing encargado de dibujar en pantalla el entorno y la mascota.
+         * * @param g Objeto Graphics utilizado para trazar las figuras y colores en la ventana.
          */
         @Override
         protected void paintComponent(Graphics g) {
-
             super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
 
-            // Fondo del hábitat (Aquí puedes cargar tu imagen de fondo)
-            g.setColor(new Color(34, 139, 34)); // Verde pasto
-            g.fillRect(0, 400, getWidth(), 200);
+            g2d.setColor(new Color(135, 206, 235));
+            g2d.fillRect(0, 0, getWidth(), 400);
+            g2d.setColor(new Color(34, 139, 34));
+            g2d.fillRect(0, 400, getWidth(), 250);
 
-            g.setColor(new Color(135, 206, 235)); // Cielo
-            g.fillRect(0, 0, getWidth(), 400);
+            g2d.setColor(new Color(255, 215, 0));
+            g2d.fillOval(50, 50, 80, 80);
 
-            // Dibujar a Cachupín (Forma simple, cámbialo por g.drawImage(imagenPerro...))
-            g.setColor(new Color(205, 133, 63));
-            g.fillOval(300, 250, 200, 150); // Cuerpo
+            if (imgMascota != null) {
+                g2d.drawImage(imgMascota, 300, 250, 200, 150, this);
+            } else {
+                g2d.setColor(new Color(205, 133, 63));
+                g2d.fillOval(300, 250, 200, 150);
+                g2d.setColor(Color.WHITE);
+                g2d.drawString("Cachupín", 350, 240);
+            }
         }
     }
 
     /**
-     * Crea una barra de progreso
-     * @param valor valor inicial
-     * @param color color de la barra
-     * @return barra creada
+     * Método auxiliar para instanciar rápidamente barras de progreso uniformes.
+     * * @param val Valor inicial de la barra.
+     * @param color Color de la barra de progreso.
+     * @return El componente JProgressBar configurado.
      */
-    private JProgressBar crearBarra(int valor, Color color) {
-
-        JProgressBar barra = new JProgressBar(0, 100);
-
-        barra.setValue(valor);
-        barra.setForeground(color);
-        barra.setStringPainted(true);
-
-        return barra;
+    private JProgressBar crearBarra(int val, Color color) {
+        JProgressBar b = new JProgressBar(0, 100);
+        b.setValue(val);
+        b.setForeground(color);
+        b.setStringPainted(true);
+        return b;
     }
 
     /**
-     * Inicia el ciclo principal del juego
+     * Inicializa un Timer de Swing que funge como bucle principal (Game Loop).
+     * Simula el paso del tiempo aumentando el hambre y disminuyendo la felicidad
+     * periódicamente.
      */
     private void iniciarGameLoop() {
-
         gameLoop = new Timer(3000, e -> {
-
-            Mascota mascota = juego.getMascotaActiva();
-
-            mascota.aumentarHambre(5);
-            mascota.disminuirFelicidad(2);
-
-            actualizarInterfaz();
+            Mascota m = juego.getMascotaActiva();
+            if (m != null) {
+                m.aumentarHambre(5);
+                m.disminuirFelicidad(2);
+                actualizarInterfaz();
+            }
         });
-
         gameLoop.start();
-
     }
 
     /**
-     * Actualiza las barras de estado y repinta la ventana
+     * Sincroniza los valores visuales de la interfaz gráfica con el estado
+     * real actual de la mascota almacenado en la lógica de negocio.
      */
     private void actualizarInterfaz() {
-
-        Mascota mascota = juego.getMascotaActiva();
-
-        barHambre.setValue(mascota.getNivelHambre());
-
-        barFelicidad.setValue(mascota.getNivelFelicidad());
-
+        Mascota m = juego.getMascotaActiva();
+        if (m != null) {
+            barHambre.setValue(Math.min(100, Math.max(0, m.getNivelHambre())));
+            barFelicidad.setValue(Math.min(100, Math.max(0, m.getNivelFelicidad())));
+            barSalud.setValue(Math.min(100, Math.max(0, m.getSalud())));
+            barHigiene.setValue(Math.min(100, Math.max(0, m.getHigiene())));
+        }
         repaint();
     }
 }
