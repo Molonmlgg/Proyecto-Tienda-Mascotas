@@ -1,5 +1,20 @@
 package modelo;
 
+import observador.EstadoObservador;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Clase abstracta que representa una mascota dentro del simulador.
+ * Actúa como <b>sujeto observable</b> dentro del patrón de diseño Observer:
+ * cualquier clase que implemente {@link EstadoObservador} puede suscribirse
+ * para ser notificada automáticamente cada vez que cambian los niveles de
+ * hambre, felicidad, higiene o salud, sin que el controlador o la vista
+ * tengan que refrescarse manualmente tras cada acción.
+ *
+ * @author Cristóbal Araya Lillo
+ */
 public abstract class Mascota {
 
     /** Nivel mínimo y máximo permitido para los atributos que le daremos a las mascotas*/
@@ -12,6 +27,9 @@ public abstract class Mascota {
     private int higiene;
     private int salud;
     private double precioCompra;
+
+    /** Lista de observadores suscritos a los cambios de estado de esta mascota. */
+    private final List<EstadoObservador> observadores = new ArrayList<>();
 
     /**
      * Constructor de la mascota
@@ -38,6 +56,40 @@ public abstract class Mascota {
     public abstract void alimentar();
 
     /**
+     * Suscribe un observador para que sea notificado de los cambios
+     * de estado de esta mascota.
+     *
+     * @param observador el observador a registrar (típicamente una vista).
+     */
+    public void agregarObservador(EstadoObservador observador) {
+        if (observador != null && !observadores.contains(observador)) {
+            observadores.add(observador);
+        }
+    }
+
+    /**
+     * Da de baja a un observador previamente suscrito, para que deje
+     * de recibir notificaciones de esta mascota (por ejemplo, al venderla).
+     *
+     * @param observador el observador a remover.
+     */
+    public void removerObservador(EstadoObservador observador) {
+        observadores.remove(observador);
+    }
+
+    /**
+     * Notifica a todos los observadores suscritos que el estado de la
+     * mascota acaba de cambiar. Se itera sobre una copia de la lista
+     * para evitar problemas si algún observador se suscribe o
+     * desuscribe durante la notificación.
+     */
+    private void notificarObservadores() {
+        for (EstadoObservador observador : new ArrayList<>(observadores)) {
+            observador.actualizarEstado(this);
+        }
+    }
+
+    /**
      * Obtiene el nombre de la mascota.
      *
      * @return nombre de la mascota.
@@ -53,7 +105,8 @@ public abstract class Mascota {
 
     /**
      * Modifica el nivel de hambre.
-     * El valor siempre permanece entre 0 y 100
+     * El valor siempre permanece entre 0 y 100.
+     * Notifica a los observadores suscritos tras aplicar el cambio.
      *
      * @param nivelHambre nuevo nivel de hambre.
      */
@@ -65,6 +118,7 @@ public abstract class Mascota {
         } else {
             this.nivelHambre = nivelHambre;
         }
+        notificarObservadores();
     }
 
     /**
@@ -74,7 +128,9 @@ public abstract class Mascota {
     public int getNivelFelicidad() { return nivelFelicidad; }
 
     /**
-     * Modifica el nivel de felicidad de la mascota
+     * Modifica el nivel de felicidad de la mascota.
+     * Notifica a los observadores suscritos tras aplicar el cambio.
+     *
      * @param nivelFelicidad nivel nuevo de felicidad
      */
     public void setNivelFelicidad(int nivelFelicidad) {
@@ -85,6 +141,7 @@ public abstract class Mascota {
         } else {
             this.nivelFelicidad = nivelFelicidad;
         }
+        notificarObservadores();
     }
 
     /**
@@ -94,7 +151,9 @@ public abstract class Mascota {
     public int getHigiene() { return higiene; }
 
     /**
-     * Modifica el nivel de higiene de la mascota
+     * Modifica el nivel de higiene de la mascota.
+     * Notifica a los observadores suscritos tras aplicar el cambio.
+     *
      * @param higiene nuevo nivel de higiene
      */
     public void setHigiene(int higiene) {
@@ -105,6 +164,7 @@ public abstract class Mascota {
         } else {
             this.higiene = higiene;
         }
+        notificarObservadores();
     }
 
     /**
@@ -114,7 +174,9 @@ public abstract class Mascota {
     public int getSalud() { return salud; }
 
     /**
-     * Modifica el nivel de salud de la mascota
+     * Modifica el nivel de salud de la mascota.
+     * Notifica a los observadores suscritos tras aplicar el cambio.
+     *
      * @param salud nuevo nivel de salud
      */
     public void setSalud(int salud) {
@@ -125,6 +187,7 @@ public abstract class Mascota {
         } else {
             this.salud = salud;
         }
+        notificarObservadores();
     }
 
     /**
@@ -179,7 +242,6 @@ public abstract class Mascota {
 
     /**
      * Indica si la mascota tiene mucha hambre
-     * @param true si el nivel de hambre es mayor o igual a 80
      */
     public boolean tieneHambre(){
         return nivelHambre >= 80;

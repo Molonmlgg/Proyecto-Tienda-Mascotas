@@ -1,12 +1,15 @@
 package controlador;
 
+import comandos.AccionCuidado;
 import excepciones.PresupuestoInsuficienteException;
-import modelo.*;
+import modelo.Mascota;
+import modelo.Tienda;
 
 /**
  * Controlador principal del simulador.
- * Coordina la comunicación entre la vista (VentanaPrincipal) y el modelo (Tienda y Mascota).
- * * @author Cristóbal Araya Lillo
+ * Delega las acciones específicas a objetos del patrón Command y gestiona
+ * el estado general de la partida (compras, ventas y selección de mascotas).
+ * @author Cristóbal Araya Lillo
  */
 public class Juego {
 
@@ -14,8 +17,8 @@ public class Juego {
     private Mascota mascotaActiva;
 
     /**
-     * Constructor de la clase Juego.
-     * Inicializa la referencia al Singleton de la tienda y establece la mascota activa en nulo.
+     * Constructor del juego.
+     * Inicializa la instancia única de la tienda y establece la mascota activa en null.
      */
     public Juego() {
         this.tienda = Tienda.getInstance();
@@ -23,11 +26,11 @@ public class Juego {
     }
 
     /**
-     * Solicita a la tienda comprar una mascota y la establece como la mascota activa.
-     * * @param tipo El tipo de mascota (ej. "perro", "gato").
-     * @param nombre El nombre que tendrá la nueva mascota.
-     * @param precio El precio de compra de la mascota.
-     * @throws PresupuestoInsuficienteException si la tienda no tiene fondos suficientes.
+     * Compra una nueva mascota y la establece como activa.
+     * @param tipo El tipo de mascota ("perro", "gato", "pajaro").
+     * @param nombre El nombre asignado a la mascota.
+     * @param precio El costo de la adopción.
+     * @throws PresupuestoInsuficienteException Si no hay fondos suficientes.
      */
     public void comprarMascota(String tipo, String nombre, double precio) throws PresupuestoInsuficienteException {
         tienda.comprarMascota(tipo, nombre, precio);
@@ -35,82 +38,46 @@ public class Juego {
     }
 
     /**
-     * Vende la mascota activa actual a través de la tienda y limpia la referencia activa.
-     * * @param precioVenta El monto por el cual será vendida la mascota.
+     * Vende la mascota activa actual y limpia la referencia.
+     * @param precioVenta El monto que se sumará al presupuesto de la tienda.
      */
     public void venderMascota(double precioVenta) {
-        if (mascotaActiva == null) return;
-        tienda.venderMascota(mascotaActiva, precioVenta);
-        this.mascotaActiva = null;
-    }
-
-    /**
-     * Intenta alimentar a la mascota activa consumiendo Comida Premium.
-     * * @return true si la mascota fue alimentada exitosamente, false si no hay mascota activa o falta comida en la tienda.
-     */
-    public boolean alimentarMascota() {
-        if (mascotaActiva == null) return false;
-        if (tienda.consumirSuministro(TipoSuministro.COMIDA_PREMIUM)) {
-            mascotaActiva.alimentar();
-            return true;
+        if (mascotaActiva != null) {
+            tienda.venderMascota(mascotaActiva, precioVenta);
+            mascotaActiva = null;
         }
-        return false;
     }
 
     /**
-     * Interactúa con la mascota activa llamando a su método de jugar,
-     * validando previamente que implemente la interfaz Jugable.
-     * * @return true si la mascota jugó correctamente, false si no hay mascota o no es de tipo Jugable.
-     */
-    public boolean jugarConMascota() {
-        if (mascotaActiva == null) return false;
-        if (mascotaActiva instanceof Jugable) {
-            ((Jugable) mascotaActiva).jugar();
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Intenta curar a la mascota activa consumiendo Medicina Básica.
-     * * @return true si la curación fue exitosa, false si no hay mascota activa o falta medicina en la tienda.
-     */
-    public boolean curarMascota() {
-        if (mascotaActiva == null) return false;
-        if (tienda.consumirSuministro(TipoSuministro.MEDICINA_BASICA)) {
-            mascotaActiva.curar(30);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Realiza un proceso de limpieza en la mascota activa, restaurando su nivel de higiene.
-     * * @return true si se limpió la mascota, false si no hay ninguna mascota activa seleccionada.
-     */
-    public boolean limpiarMascota() {
-        if (mascotaActiva == null) return false;
-        mascotaActiva.limpiar(30);
-        return true;
-    }
-
-    /**
-     * Establece una nueva mascota como la mascota activa del jugador.
-     * * @param mascota La mascota que pasará a estar activa.
+     * Cambia la mascota activa del simulador.
+     * @param mascota La nueva mascota a controlar.
      */
     public void seleccionarMascota(Mascota mascota) {
         this.mascotaActiva = mascota;
     }
 
     /**
-     * Obtiene la mascota con la que el jugador está interactuando actualmente.
-     * @return la mascota activa.
+     * Ejecuta una acción encapsulada bajo el patrón Command.
+     * @param comando La acción a ejecutar (Alimentar, Jugar, Curar, Limpiar).
+     * @return true si la acción se ejecutó correctamente, false en caso contrario.
      */
-    public Mascota getMascotaActiva() { return mascotaActiva; }
+    public boolean ejecutarAccion(AccionCuidado comando) {
+        return comando.ejecutar(mascotaActiva, tienda);
+    }
 
     /**
-     * Obtiene la instancia de la tienda asociada al juego actual.
-     * @return la tienda Singleton.
+     * Obtiene la mascota activa.
+     * @return Mascota activa.
      */
-    public Tienda getTienda() { return tienda; }
+    public Mascota getMascotaActiva() {
+        return mascotaActiva;
+    }
+
+    /**
+     * Obtiene la instancia de la tienda.
+     * @return Tienda principal.
+     */
+    public Tienda getTienda() {
+        return tienda;
+    }
 }
