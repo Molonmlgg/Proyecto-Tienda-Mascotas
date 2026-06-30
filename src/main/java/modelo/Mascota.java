@@ -165,6 +165,18 @@ public abstract class Mascota {
         setNivelFelicidad(getNivelFelicidad() + cantidad);
     }
 
+    public void disminuirFelicidad(int cantidad){
+        setNivelFelicidad(getNivelFelicidad() - cantidad);
+    }
+
+    public void disminuirHigiene(int cantidad){
+        setHigiene(getHigiene() - cantidad);
+    }
+
+    public void disminuirSalud(int cantidad){
+        setSalud(getSalud() - cantidad);
+    }
+
     /**
      * Indica si la mascota tiene mucha hambre
      * @param true si el nivel de hambre es mayor o igual a 80
