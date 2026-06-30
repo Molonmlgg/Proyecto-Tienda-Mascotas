@@ -67,12 +67,11 @@ public class Tienda {
         descontarPresupuesto(precio);
 
         Mascota nuevaMascota = fabrica.crearMascota(tipo, nombre, precio);
-
-        if (nuevaMascota != null){
-            inventarioMascotas.add(nuevaMascota);
-            System.out.println("Has comprado un "
-                    + tipo "llamado " + nombre);
+        if (nuevaMascota == null){
+            return;
         }
+        inventarioMascotas.add(nuevaMascota);
+
     }
 
     /**
@@ -81,6 +80,9 @@ public class Tienda {
      * @param precioVenta El dinero que paga el cliente virtual.
      */
     public void venderMascota(Mascota mascota, double precioVenta) {
+        if (mascota == null){
+            return;
+        }
         if (inventarioMascotas.contains(mascota)) {
             inventarioMascotas.remove(mascota);
             aumentarPresupuesto(precioVenta);
@@ -94,6 +96,9 @@ public class Tienda {
      * @return la mascota encontrada o null si no existe
      */
     public Mascota buscarMascota(String nombre) {
+        if (nombre == null){
+            return null;
+        }
         for (Mascota mascota : inventarioMascotas){
             if (mascota.getNombre().equalsIgnoreCase(nombre)){
                 return mascota;
@@ -137,6 +142,9 @@ public class Tienda {
      * @return true si pudo consumirlo
      */
     public boolean consumirSuministro(TipoSuministro tipo){
+        if (tipo == null){
+            return false;
+        }
         int cantidad = inventarioSuministros.get(tipo);
         if (cantidad > 0){
             inventarioSuministros.put(tipo, cantidad-1);
@@ -159,7 +167,7 @@ public class Tienda {
      * @return numero de mascotas
      */
     public int getCantidadMascota(){
-        return invetarioMascotas.size();
+        return inventarioMascotas.size();
     }
 
     /**
