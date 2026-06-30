@@ -9,7 +9,9 @@ public class MascotaFactory {
     public Mascota crearMascota(String tipo, String nombre, double precioCompra) {
         if (tipo == null) return null;
 
-        switch (tipo.toLowerCase()) {
+        tipo = tipo.toLowerCase().trim().replace("á", "a");
+
+        switch (tipo) {
             case "perro": return new Perro(nombre, precioCompra);
             case "gato": return new Gato(nombre, precioCompra);
             case "pez": return new Pez(nombre, precioCompra);

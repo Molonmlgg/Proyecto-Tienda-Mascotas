@@ -231,7 +231,9 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
                 try {
                     juego.comprarMascota(tipo, nombre, 25.0);
                     Mascota nueva = juego.getMascotaActiva();
-                    nueva.agregarObservador(this);
+                    if (nueva != null){
+                        nueva.agregarObservador(this);
+                    }
 
                     actualizarSelector();
                     panelEscena.setMascota(nueva);

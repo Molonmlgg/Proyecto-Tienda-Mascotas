@@ -9,7 +9,6 @@ import modelo.Tienda;
  * Controlador principal del simulador.
  * Delega las acciones específicas a objetos del patrón Command y gestiona
  * el estado general de la partida (compras, ventas y selección de mascotas).
- * @author Cristóbal Araya Lillo
  */
 public class Juego {
 
@@ -34,7 +33,10 @@ public class Juego {
      */
     public void comprarMascota(String tipo, String nombre, double precio) throws PresupuestoInsuficienteException {
         tienda.comprarMascota(tipo, nombre, precio);
-        this.mascotaActiva = tienda.buscarMascota(nombre);
+        Mascota mascota = tienda.buscarMascota(nombre);
+        if (mascota != null){
+            mascotaActiva = mascota;
+        }
     }
 
     /**
