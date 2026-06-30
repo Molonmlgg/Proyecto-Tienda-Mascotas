@@ -83,11 +83,15 @@ public class Tienda {
         if (mascota == null){
             return;
         }
-        if (inventarioMascotas.contains(mascota)) {
-            inventarioMascotas.remove(mascota);
-            aumentarPresupuesto(precioVenta);
-            System.out.println("Has vendido a " + mascota.getNombre() + " por $" + precioVenta);
+        if (!inventarioMascotas.remove(mascota)){
+            return;
         }
+
+        aumentarPresupuesto(precioVenta);
+
+        System.out.println("Has vendido a "
+                + mascota.getNombre()
+                + " por $" + precioVenta);
     }
 
     /**
