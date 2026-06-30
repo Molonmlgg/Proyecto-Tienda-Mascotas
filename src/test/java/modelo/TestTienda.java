@@ -16,10 +16,13 @@ public class TestTienda {
 
     @BeforeEach
     void setup() {
-        // Al ser Singleton, obtenemos la instancia y reseteamos sus valores para los tests
         miTienda = Tienda.getInstance();
         miTienda.setPresupuesto(1000);
         miTienda.getInventarioMascotas().clear();
+
+        for (TipoSuministro tipo : TipoSuministro.values()){
+            miTienda.getInventarioSuministros().put(tipo, 10);
+        }
     }
 
     @Test
@@ -48,7 +51,7 @@ public class TestTienda {
         assertEquals(800, miTienda.getPresupuesto());
 
         // Verificar que hay 5 medicinas en el inventario usando el Enum
-        int cantidadMedicinas = miTienda.getInventarioSuministros().get(TipoSuministro.MEDICINA_BASICA);
-        assertEquals(5, cantidadMedicinas);
+        int cantidadMedicinas = miTienda.getCantidadSuministro(TipoSuministro.MEDICINA_BASICA);
+        assertEquals(15, cantidadMedicinas);
     }
 }

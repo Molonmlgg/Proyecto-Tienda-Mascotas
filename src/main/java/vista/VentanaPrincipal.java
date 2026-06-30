@@ -218,7 +218,7 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
     }
 
     private void abrirTiendaMascotas() {
-        String[] opciones = {"Perro ($25)", "Gato ($25)", "Pájaro ($25)"};
+        String[] opciones = {"Perro ($25)", "Gato ($25)", "Pajaro ($25)"};
         String eleccion = (String) JOptionPane.showInputDialog(this,
                 "Adopta una nueva mascota:\nPresupuesto actual: $" + (int)juego.getTienda().getPresupuesto(),
                 "Tienda", JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
