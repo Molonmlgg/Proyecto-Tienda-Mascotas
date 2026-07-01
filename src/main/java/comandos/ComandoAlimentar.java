@@ -5,7 +5,7 @@ import modelo.Tienda;
 import modelo.TipoSuministro;
 
 /**
- * Comando para alimentar a la mascota. Recompensa: $5.0.
+ * Comando para alimentar a la mascota.
  * @author Cristóbal Araya Lillo
  */
 public class ComandoAlimentar implements AccionCuidado {
@@ -14,7 +14,7 @@ public class ComandoAlimentar implements AccionCuidado {
         if (mascota == null) return false;
         if (tienda.consumirSuministro(TipoSuministro.COMIDA_PREMIUM)) {
             mascota.alimentar();
-            tienda.agregarPresupuesto(5.0); // Recompensa Arcade
+            //Elimine el ganar dinero por alimentar
             return true;
         }
         return false;

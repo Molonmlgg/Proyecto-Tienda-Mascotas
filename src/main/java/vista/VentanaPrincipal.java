@@ -40,7 +40,7 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
         this.juego = new Juego();
 
         setTitle("Simulador de Mascotas");
-        setSize(800, 650);
+        setSize(1000, 650);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -146,11 +146,16 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
         btnVender.setPreferredSize(new Dimension(120, 35));
         btnVender.addActionListener(e -> venderMascotaActual());
 
+        BotonAccion btnMochila = new BotonAccion("🎒 Mochila", new Color(120, 120, 180));
+        btnMochila.setPreferredSize(new Dimension(120, 35));
+        btnMochila.addActionListener(e -> mostrarMochila());
+
         panelTopControl.add(new JLabel("Mascota Activa: "));
         panelTopControl.add(selectorMascotas);
         panelTopControl.add(btnComprarMascota);
         panelTopControl.add(btnSuministros);
         panelTopControl.add(btnVender);
+        panelTopControl.add(btnMochila);
 
         // --- HUD DE ESTADÍSTICAS ---
         JPanel panelHUD = new JPanel(new BorderLayout());
@@ -187,7 +192,7 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
         panelAcciones.setBackground(COLOR_FONDO);
         panelAcciones.setBorder(BorderFactory.createEmptyBorder(15, 10, 15, 10));
 
-        BotonAccion btnAlimentar = new BotonAccion("Alimentar (-$2)", new Color(200, 110, 90));
+        BotonAccion btnAlimentar = new BotonAccion("Alimentar", new Color(200, 110, 90));
         BotonAccion btnJugar = new BotonAccion("Jugar (+$3)", new Color(110, 160, 90));
         BotonAccion btnCurar = new BotonAccion("Curar (-$5)", new Color(90, 150, 190));
         BotonAccion btnLimpiar = new BotonAccion("Limpiar (-$1)", new Color(100, 180, 220));
@@ -364,5 +369,24 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
             barHigiene.setValor(m.getHigiene());
             lblDinero.setText("💰 $" + (int) juego.getTienda().getPresupuesto());
         }
+    }
+
+    private void mostrarMochila(){
+        String mensaje =
+                "========== MOCHILA ==========\n\n" +
+
+                        "💰 Dinero: $" +
+                        (int) juego.getTienda().getPresupuesto() +
+
+                        "\n\n🐾 Mascotas: " +
+                        juego.getTienda().getCantidadMascotas() +
+
+                        "\n\n🍖 Comida Premium: " +
+                        juego.getTienda().getCantidadSuministro(modelo.TipoSuministro.COMIDA_PREMIUM) +
+
+                        "\n💊 Medicina Básica: " +
+                        juego.getTienda().getCantidadSuministro(modelo.TipoSuministro.MEDICINA_BASICA);
+
+        JOptionPane.showMessageDialog(this, mensaje, "Mochila", JOptionPane.INFORMATION_MESSAGE);
     }
 }
