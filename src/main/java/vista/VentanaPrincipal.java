@@ -194,13 +194,13 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
 
         BotonAccion btnAlimentar = new BotonAccion("Alimentar", new Color(200, 110, 90));
         BotonAccion btnJugar = new BotonAccion("Jugar (+$3)", new Color(110, 160, 90));
-        BotonAccion btnCurar = new BotonAccion("Curar (-$5)", new Color(90, 150, 190));
-        BotonAccion btnLimpiar = new BotonAccion("Limpiar (-$1)", new Color(100, 180, 220));
+        BotonAccion btnCurar = new BotonAccion("Curar (+$2)", new Color(90, 150, 190));
+        BotonAccion btnLimpiar = new BotonAccion("Limpiar (+$1)", new Color(100, 180, 220));
 
-        btnAlimentar.addActionListener(e -> procesarAccion(-2, new ComandoAlimentar(), "¡Necesitas suministros!"));
+        btnAlimentar.addActionListener(e -> ejecutarYNotificar(new ComandoAlimentar(), "¡Necesitas comida premium!"));
         btnJugar.addActionListener(e -> ejecutarYNotificar(new ComandoJugar(), "¡No quiere jugar!"));
-        btnCurar.addActionListener(e -> procesarAccion(-5, new ComandoCurar(), "¡Necesitas medicina!"));
-        btnLimpiar.addActionListener(e -> procesarAccion(-1, new ComandoLimpiar(), "¡Error al limpiar!"));
+        btnCurar.addActionListener(e -> ejecutarYNotificar(new ComandoCurar(), "¡Necesitas medicina!"));
+        btnLimpiar.addActionListener(e -> ejecutarYNotificar(new ComandoLimpiar(), "¡Error al limpiar!"));
 
         panelAcciones.add(btnAlimentar); panelAcciones.add(btnJugar);
         panelAcciones.add(btnCurar); panelAcciones.add(btnLimpiar);
