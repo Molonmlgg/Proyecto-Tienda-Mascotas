@@ -8,6 +8,7 @@ import comandos.AccionCuidado;
 import controlador.Juego;
 import excepciones.PresupuestoInsuficienteException;
 import modelo.Mascota;
+import modelo.TipoSuministro;
 import observador.EstadoObservador;
 
 import javax.swing.*;
@@ -251,10 +252,21 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
     }
 
     private void abrirTiendaSuministros() {
-        String[] opciones = {"Comida Premium ($5 x 5u)", "Medicina Básica ($8 x 3u)"};
-        String eleccion = (String) JOptionPane.showInputDialog(this,
-                "Compra suministros para tu mascota:\nPresupuesto actual: $" + (int)juego.getTienda().getPresupuesto(),
-                "Tienda de Suministros", JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
+        String[] opciones = {
+                "Comida Premium ($5 x 5u)",
+                "Medicina Básica ($8 x 3u)",
+                "Kit de Limpieza ($4 x 5u)"
+        };
+        String eleccion = (String) JOptionPane.showInputDialog(
+                this,
+                "Compra suministros para tu mascota:\n\n" +
+                        "Presupuesto actual: $" + (int) juego.getTienda().getPresupuesto(),
+                "Tienda de Suministros",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                opciones,
+                opciones[0]);
+
 
         if (eleccion != null) {
             try {
@@ -264,6 +276,9 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
                 } else if (eleccion.startsWith("Medicina")) {
                     juego.getTienda().comprarSuministro(modelo.TipoSuministro.MEDICINA_BASICA, 3, 8.0);
                     JOptionPane.showMessageDialog(this, "¡Has comprado 3 unidades de Medicina Básica!");
+                } else if (eleccion.startsWith("Kit")){
+                    juego.getTienda().comprarSuministro(modelo.TipoSuministro.KIT_LIMPIEZA, 5, 4.0);
+                    JOptionPane.showMessageDialog(this, "¡Has comprado 5 Kits de Limpieza!");
                 }
                 actualizarInterfaz();
             } catch (PresupuestoInsuficienteException ex) {
@@ -385,7 +400,11 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
                         juego.getTienda().getCantidadSuministro(modelo.TipoSuministro.COMIDA_PREMIUM) +
 
                         "\n💊 Medicina Básica: " +
-                        juego.getTienda().getCantidadSuministro(modelo.TipoSuministro.MEDICINA_BASICA);
+                        juego.getTienda().getCantidadSuministro(modelo.TipoSuministro.MEDICINA_BASICA) +
+
+                        "\n🧽 Kit de Limpieza: " +
+                        juego.getTienda().getCantidadSuministro(modelo.TipoSuministro.KIT_LIMPIEZA);
+
 
         JOptionPane.showMessageDialog(this, mensaje, "Mochila", JOptionPane.INFORMATION_MESSAGE);
     }

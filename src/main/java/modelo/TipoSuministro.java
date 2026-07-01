@@ -12,6 +12,6 @@ public enum TipoSuministro {
     /** Medicina para curar enfermedades y restaurar la salud */
     MEDICINA_BASICA,
 
-    /** Suplemento para aumentar drásticamente la felicidad y la salud */
-    VITAMINAS
+    /** KIT DE LIMPIEZA */
+    KIT_LIMPIEZA
 }
