@@ -48,6 +48,10 @@ public class Tienda {
             throw new IllegalArgumentException("Debe indicar el tipo de mascota.");
         }
 
+        if (existeMascota(nombre)) {
+            throw new IllegalArgumentException("Ya existe una mascota con ese nombre.");
+        }
+
         if (nombre == null || nombre.isBlank()){
             throw new IllegalArgumentException("Debe indicar el nombre de la mascota.");
         }

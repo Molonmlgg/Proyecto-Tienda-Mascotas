@@ -38,9 +38,9 @@ public abstract class Mascota {
      */
     public Mascota(String nombre, double precioCompra) {
         this.nombre = nombre;
-        this.nivelHambre = 0;
-        this.nivelFelicidad = 0;
-        this.higiene = 0;
+        this.nivelHambre = 20;
+        this.nivelFelicidad = 70;
+        this.higiene = 80;
         this.salud = 100;
         this.precioCompra = precioCompra;
     }

@@ -59,50 +59,78 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
     }
 
     private JPanel crearPanelBienvenida() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(COLOR_FONDO);
+        JPanel panel = new FondoCalido(new GridBagLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int cx = getWidth() / 2;
+                int tituloY = (int) (getHeight() * 0.32);
+
+                TipografiaCalida.pintarTitulo(g2, "Pet Store", cx, tituloY,
+                        new Font("SansSerif", Font.BOLD, 54),
+                        new Color(255, 214, 140), COLOR_MADERA);
+
+                g2.setFont(new Font("SansSerif", Font.PLAIN, 18));
+                g2.setColor(new Color(120, 85, 55));
+                String subtitulo = "Cuida, alimenta y hazlos felices";
+                FontMetrics fm = g2.getFontMetrics();
+                g2.drawString(subtitulo, cx - fm.stringWidth(subtitulo) / 2, tituloY + 34);
+
+                IconosPintados.dibujar(g2, IconosPintados.Tipo.PATA, cx - 220, tituloY - 40, 34);
+                IconosPintados.dibujar(g2, IconosPintados.Tipo.PATA, cx + 190, tituloY - 40, 34);
+                g2.dispose();
+            }
+        };
         GridBagConstraints gbc = new GridBagConstraints();
 
-        JLabel titulo = new JLabel("Pet Store Simulator");
-        titulo.setFont(new Font("SansSerif", Font.BOLD, 50));
-        titulo.setForeground(COLOR_MADERA);
-        gbc.gridy = 0; gbc.insets = new Insets(0, 0, 40, 0);
-        panel.add(titulo, gbc);
-
-        BotonAccion btnEmpezar = new BotonAccion("▶ INICIAR JUEGO", new Color(110, 160, 90));
-        btnEmpezar.setPreferredSize(new Dimension(250, 60));
+        BotonAccion btnEmpezar = new BotonAccion("▶  INICIAR ", new Color(120, 170, 95));
+        btnEmpezar.setPreferredSize(new Dimension(260, 62));
+        btnEmpezar.setFont(new Font("SansSerif", Font.BOLD, 18));
         btnEmpezar.addActionListener(e -> cardLayout.show(panelGestorCards, "SELECCION"));
         gbc.gridy = 1;
+        gbc.insets = new Insets(140, 0, 0, 0);
         panel.add(btnEmpezar, gbc);
 
         return panel;
     }
 
     private JPanel crearPanelSeleccion() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(COLOR_FONDO);
+        JPanel panel = new FondoCalido(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(15, 15, 15, 15);
+        gbc.insets = new Insets(18, 18, 18, 18);
 
-        JLabel titulo = new JLabel("Adopta un Compañero");
-        titulo.setFont(new Font("SansSerif", Font.BOLD, 40));
-        titulo.setForeground(COLOR_MADERA);
-
+        JPanel headerPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                TipografiaCalida.pintarTitulo(g2, "Adopta un Compañero", getWidth() / 2, 46,
+                        new Font("SansSerif", Font.BOLD, 38),
+                        new Color(255, 214, 140), COLOR_MADERA);
+                g2.dispose();
+            }
+        };
+        headerPanel.setOpaque(false);
+        headerPanel.setPreferredSize(new Dimension(600, 70));
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 3;
-        panel.add(titulo, gbc);
+        panel.add(headerPanel, gbc);
 
-        BotonAccion btnPerro = new BotonAccion("🐕 PERRO", new Color(180, 120, 70));
-        BotonAccion btnGato = new BotonAccion("🐈 GATO", new Color(150, 100, 80));
-        BotonAccion btnPajaro = new BotonAccion("🐦 PÁJARO", new Color(200, 150, 60));
+        TarjetaMascota tarjetaPerro = new TarjetaMascota("Perro", IconosPintados.Tipo.PERRO, new Color(196, 130, 90));
+        TarjetaMascota tarjetaGato = new TarjetaMascota("Gato", IconosPintados.Tipo.GATO, new Color(190, 140, 170));
+        TarjetaMascota tarjetaPajaro = new TarjetaMascota("Pájaro", IconosPintados.Tipo.PAJARO, new Color(220, 175, 90));
 
-        btnPerro.addActionListener(e -> iniciarJuegoConMascota("perro"));
-        btnGato.addActionListener(e -> iniciarJuegoConMascota("gato"));
-        btnPajaro.addActionListener(e -> iniciarJuegoConMascota("pajaro"));
+        tarjetaPerro.addActionListener(e -> iniciarJuegoConMascota("perro"));
+        tarjetaGato.addActionListener(e -> iniciarJuegoConMascota("gato"));
+        tarjetaPajaro.addActionListener(e -> iniciarJuegoConMascota("pajaro"));
 
         gbc.gridwidth = 1; gbc.gridy = 1;
-        gbc.gridx = 0; panel.add(btnPerro, gbc);
-        gbc.gridx = 1; panel.add(btnGato, gbc);
-        gbc.gridx = 2; panel.add(btnPajaro, gbc);
+        gbc.gridx = 0; panel.add(tarjetaPerro, gbc);
+        gbc.gridx = 1; panel.add(tarjetaGato, gbc);
+        gbc.gridx = 2; panel.add(tarjetaPajaro, gbc);
 
         return panel;
     }
@@ -205,10 +233,10 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
 
         JPanel panelBarras = new JPanel(new GridLayout(2, 2, 8, 8));
         panelBarras.setOpaque(false);
-        barHambre = new BarraNivel("Hambre", "🍗", new Color(220, 100, 80));
-        barFelicidad = new BarraNivel("Ánimo", "🎾", new Color(120, 180, 100));
-        barSalud = new BarraNivel("Salud", "❤️", new Color(200, 80, 100));
-        barHigiene = new BarraNivel("Higiene", "🧼", new Color(100, 180, 220));
+        barHambre = new BarraNivel("Hambre", IconosPintados.Tipo.HAMBRE, new Color(220, 100, 80));
+        barFelicidad = new BarraNivel("Ánimo", IconosPintados.Tipo.FELICIDAD, new Color(120, 180, 100));
+        barSalud = new BarraNivel("Salud", IconosPintados.Tipo.SALUD, new Color(200, 80, 100));
+        barHigiene = new BarraNivel("Higiene", IconosPintados.Tipo.HIGIENE, new Color(100, 180, 220));
 
         panelBarras.add(barHambre); panelBarras.add(barFelicidad);
         panelBarras.add(barSalud); panelBarras.add(barHigiene);
@@ -397,7 +425,7 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
                 if (m != null) {
                     m.aumentarHambre(3);
                     m.disminuirFelicidad(2);
-                    m.limpiar(-4);
+                    m.disminuirHigiene(4);
                 }
                 ultimoDesgaste = tiempoActual;
             }
