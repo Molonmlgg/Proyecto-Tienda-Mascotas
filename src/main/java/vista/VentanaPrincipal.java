@@ -108,19 +108,54 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
     }
 
     private void iniciarJuegoConMascota(String tipo) {
+
+        String nombre = JOptionPane.showInputDialog(
+                this,
+                "¿Cómo quieres llamar a tu " + tipo + "?"
+        );
+
+        if (nombre == null) {
+            return;
+        }
+
+        nombre = nombre.trim();
+
+        if (nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Debes ingresar un nombre."
+            );
+            return;
+        }
+
         try {
-            juego.comprarMascota(tipo, "Compañero", 0);
+
+            juego.comprarMascota(tipo, nombre, 0);
+
             Mascota m = juego.getMascotaActiva();
+
             if (m != null) {
+
                 m.agregarObservador(this);
+
                 panelEscena.setMascota(m);
+
                 actualizarSelector();
+
                 actualizarInterfaz();
+
                 iniciarGameLoop();
+
                 cardLayout.show(panelGestorCards, "JUEGO");
             }
+
         } catch (PresupuestoInsuficienteException ex) {
-            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Error: " + ex.getMessage()
+            );
+
         }
     }
 
