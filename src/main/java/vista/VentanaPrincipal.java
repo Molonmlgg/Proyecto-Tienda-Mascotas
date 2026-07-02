@@ -361,14 +361,30 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
     private void venderMascotaActual() {
         Mascota m = juego.getMascotaActiva();
         if (m == null) return;
+        double precioDeVenta = m.calcularValorActual();
+        int precioFinal = (int) precioDeVenta;
+
 
         int confirmacion = JOptionPane.showConfirmDialog(this,
-                "¿Estás seguro de que deseas vender a " + m.getNombre() + " por $15?",
-                "Confirmar Venta", JOptionPane.YES_NO_OPTION);
+                "¿Estás seguro de que deseas vender a " + m.getNombre() + " por $" + precioFinal + "?",
+                "Confirmar Venta",
+                JOptionPane.YES_NO_OPTION);
 
         if (confirmacion == JOptionPane.YES_OPTION) {
-            juego.venderMascota(15.0);
-            JOptionPane.showMessageDialog(this, m.getNombre() + " ha sido vendido. ¡Recibiste $15!");
+
+
+            juego.venderMascota(precioDeVenta);
+
+
+            String mensajeExito = m.getNombre() + " ha sido vendido. ¡Recibiste $" + precioFinal + "!\n";
+            if (precioDeVenta > m.getPrecioCompra()) {
+                mensajeExito += "¡Excelente rentabilidad gracias a tus buenos cuidados!";
+            } else {
+                mensajeExito += "El animal estaba en mal estado o lo vendiste muy rápido. Perdiste dinero.";
+            }
+
+            JOptionPane.showMessageDialog(this, mensajeExito, "Venta Exitosa", JOptionPane.INFORMATION_MESSAGE);
+
 
             actualizarSelector();
 
@@ -378,7 +394,9 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
             } else {
                 panelEscena.setMascota(null);
             }
+
             actualizarInterfaz();
+            panelEscena.repaint();
         }
     }
 
