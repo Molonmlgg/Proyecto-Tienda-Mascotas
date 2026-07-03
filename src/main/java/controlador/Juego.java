@@ -82,4 +82,19 @@ public class Juego {
     public Tienda getTienda() {
         return tienda;
     }
+
+
+/**
+ * Elimina la mascota activa actual debido a que su salud llegó a cero,
+ * sin otorgar dinero a cambio (a diferencia de venderMascota).
+ */
+public void perderMascotaActual() {
+    if (mascotaActiva != null) {
+        // La eliminamos del inventario de la tienda pasando un precio de venta 0
+        tienda.venderMascota(mascotaActiva, 0.0);
+
+        // Limpiamos la referencia activa
+        mascotaActiva = null;
+    }
+}
 }

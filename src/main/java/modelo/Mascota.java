@@ -20,6 +20,7 @@ public abstract class Mascota {
     /** Nivel mínimo y máximo permitido para los atributos que le daremos a las mascotas*/
     private static final int MIN_NIVEL = 0;
     private static final int MAX_NIVEL = 100;
+    private long tiempoAdopcion;
 
     private String nombre;
     private int nivelHambre;
@@ -39,10 +40,11 @@ public abstract class Mascota {
     public Mascota(String nombre, double precioCompra) {
         this.nombre = nombre;
         this.nivelHambre = 20;
-        this.nivelFelicidad = 70;
-        this.higiene = 80;
+        this.nivelFelicidad = 50;
+        this.higiene = 50;
         this.salud = 100;
         this.precioCompra = precioCompra;
+        this.tiempoAdopcion = System.currentTimeMillis();
     }
 
     /**
@@ -104,11 +106,8 @@ public abstract class Mascota {
     public int getNivelHambre() { return nivelHambre; }
 
     /**
-     * Modifica el nivel de hambre.
-     * El valor siempre permanece entre 0 y 100.
-     * Notifica a los observadores suscritos tras aplicar el cambio.
-     *
-     * @param nivelHambre nuevo nivel de hambre.
+     * Modifica el nivel de hambre. Si el hambre es extrema (>= 80),
+     * la mascota comienza a perder salud y felicidad.
      */
     public void setNivelHambre(int nivelHambre) {
         if (nivelHambre < MIN_NIVEL){
@@ -118,6 +117,12 @@ public abstract class Mascota {
         } else {
             this.nivelHambre = nivelHambre;
         }
+
+        if (this.nivelHambre >= 80) {
+            this.salud = Math.max(MIN_NIVEL, this.salud - 5);
+            this.nivelFelicidad = Math.max(MIN_NIVEL, this.nivelFelicidad - 5);
+        }
+
         notificarObservadores();
     }
 
@@ -151,10 +156,8 @@ public abstract class Mascota {
     public int getHigiene() { return higiene; }
 
     /**
-     * Modifica el nivel de higiene de la mascota.
-     * Notifica a los observadores suscritos tras aplicar el cambio.
-     *
-     * @param higiene nuevo nivel de higiene
+     * Modifica el nivel de higiene. Si está muy sucia (<= 20),
+     * la mascota se enferma (pierde salud) y se pone triste.
      */
     public void setHigiene(int higiene) {
         if (higiene < MIN_NIVEL){
@@ -164,6 +167,12 @@ public abstract class Mascota {
         } else {
             this.higiene = higiene;
         }
+
+        if (this.higiene <= 20) {
+            this.salud = Math.max(MIN_NIVEL, this.salud - 5);
+            this.nivelFelicidad = Math.max(MIN_NIVEL, this.nivelFelicidad - 5);
+        }
+
         notificarObservadores();
     }
 
@@ -269,6 +278,35 @@ public abstract class Mascota {
      */
     public boolean estaTriste() {
         return nivelFelicidad <= 40;
+    }
+
+
+    /**
+     * Calcula el valor de venta de la mascota.
+     * Empieza en $0 y crece a un ritmo moderado. Castiga las ventas prematuras.
+     * @return El dinero que te pagarán por ella.
+     */
+    public double calcularValorActual() {
+        double valorFinal = 0.0;
+        long segundosEnTienda = (System.currentTimeMillis() - this.tiempoAdopcion) / 1000;
+
+        double crecimientoPorTiempo = segundosEnTienda * 1.2;
+
+        valorFinal += Math.min(100.0, crecimientoPorTiempo);
+
+        if (valorFinal > 15.0) {
+
+
+            if (this.salud >= 80 && this.higiene >= 70 && this.nivelHambre <= 30 && this.nivelFelicidad >= 80) {
+                valorFinal *= 1.3;
+            }
+
+            else if (this.salud <= 40 || this.higiene <= 30 || this.nivelHambre >= 70) {
+                valorFinal *= 0.6;
+            }
+        }
+
+        return valorFinal;
     }
 
 }

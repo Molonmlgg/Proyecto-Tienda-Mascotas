@@ -33,6 +33,9 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
     private long ultimoDesgaste = 0;
     private JComboBox<String> selectorMascotas;
 
+    private boolean victoriaAlcanzada = false;
+    private final double META_DINERO = 1000.0;
+
     private final Color COLOR_FONDO = new Color(245, 235, 220);
     private final Color COLOR_MADERA = new Color(139, 90, 43);
     private final Color COLOR_MADERA_CLARA = new Color(205, 170, 125);
@@ -136,7 +139,6 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
     }
 
     private void iniciarJuegoConMascota(String tipo) {
-
         String nombre = JOptionPane.showInputDialog(
                 this,
                 "¿Cómo quieres llamar a tu " + tipo + "?"
@@ -157,40 +159,28 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
         }
 
         try {
-
             juego.comprarMascota(tipo, nombre, 0);
-
             Mascota m = juego.getMascotaActiva();
 
             if (m != null) {
-
                 m.agregarObservador(this);
-
                 panelEscena.setMascota(m);
-
                 actualizarSelector();
-
                 actualizarInterfaz();
-
                 iniciarGameLoop();
-
                 cardLayout.show(panelGestorCards, "JUEGO");
             }
-
         } catch (PresupuestoInsuficienteException ex) {
-
             JOptionPane.showMessageDialog(
                     this,
                     "Error: " + ex.getMessage()
             );
-
         }
     }
 
     private JPanel crearPanelJuego() {
         JPanel panelJuego = new JPanel(new BorderLayout());
-
-        // --- SECCIÓN SUPERIOR: Selector y Tienda ---
+        
         JPanel panelTopControl = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         panelTopControl.setBackground(COLOR_MADERA_CLARA);
 
@@ -221,7 +211,7 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
         panelTopControl.add(btnVender);
         panelTopControl.add(btnMochila);
 
-        // --- HUD DE ESTADÍSTICAS ---
+
         JPanel panelHUD = new JPanel(new BorderLayout());
         panelHUD.setBackground(COLOR_MADERA_CLARA);
         panelHUD.setBorder(BorderFactory.createEmptyBorder(5, 15, 10, 15));
@@ -247,11 +237,9 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
         panelNorte.add(panelHUD, BorderLayout.CENTER);
         panelJuego.add(panelNorte, BorderLayout.NORTH);
 
-        // --- ESCENA ---
         panelEscena = new EscenaPanel();
         panelJuego.add(panelEscena, BorderLayout.CENTER);
 
-        // --- BOTONES DE ACCIÓN ---
         JPanel panelAcciones = new JPanel(new GridLayout(2, 2, 10, 10));
         panelAcciones.setBackground(COLOR_FONDO);
         panelAcciones.setBorder(BorderFactory.createEmptyBorder(15, 10, 15, 10));
@@ -350,17 +338,31 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
         }
     }
 
+
     private void venderMascotaActual() {
         Mascota m = juego.getMascotaActiva();
         if (m == null) return;
 
+        double precioDeVenta = m.calcularValorActual();
+        int precioFinal = (int) precioDeVenta;
+
         int confirmacion = JOptionPane.showConfirmDialog(this,
-                "¿Estás seguro de que deseas vender a " + m.getNombre() + " por $15?",
-                "Confirmar Venta", JOptionPane.YES_NO_OPTION);
+                "¿Estás seguro de que deseas vender a " + m.getNombre() + " por $" + precioFinal + "?",
+                "Confirmar Venta",
+                JOptionPane.YES_NO_OPTION);
 
         if (confirmacion == JOptionPane.YES_OPTION) {
-            juego.venderMascota(15.0);
-            JOptionPane.showMessageDialog(this, m.getNombre() + " ha sido vendido. ¡Recibiste $15!");
+
+            juego.venderMascota(precioDeVenta);
+
+            String mensajeExito = m.getNombre() + " ha sido vendido. ¡Recibiste $" + precioFinal + "!\n";
+            if (precioDeVenta > m.getPrecioCompra()) {
+                mensajeExito += "¡Excelente rentabilidad gracias a tus buenos cuidados!";
+            } else {
+                mensajeExito += "El animal estaba en mal estado o lo vendiste muy rápido. Perdiste dinero.";
+            }
+
+            JOptionPane.showMessageDialog(this, mensajeExito, "Venta Exitosa", JOptionPane.INFORMATION_MESSAGE);
 
             actualizarSelector();
 
@@ -370,7 +372,9 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
             } else {
                 panelEscena.setMascota(null);
             }
+
             actualizarInterfaz();
+            panelEscena.repaint();
         }
     }
 
@@ -403,7 +407,15 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
         }
     }
 
+
     private void ejecutarYNotificar(AccionCuidado comando, String msgError) {
+        if (juego.getMascotaActiva() == null) {
+            JOptionPane.showMessageDialog(this,
+                    "No tienes ninguna mascota activa. ¡Adopta una nueva o selecciona otra de tu inventario!",
+                    "Sin Mascota",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         if (!juego.ejecutarAccion(comando)) {
             JOptionPane.showMessageDialog(this, msgError, "Aviso", JOptionPane.WARNING_MESSAGE);
         }
@@ -436,6 +448,8 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
     @Override
     public void actualizarEstado(Mascota mascota) {
         actualizarInterfaz();
+        verificarSaludMascota(mascota);
+        verificarVictoria();
     }
 
     private void actualizarInterfaz() {
@@ -445,8 +459,13 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
             barFelicidad.setValor(m.getNivelFelicidad());
             barSalud.setValor(m.getSalud());
             barHigiene.setValor(m.getHigiene());
-            lblDinero.setText("💰 $" + (int) juego.getTienda().getPresupuesto());
+        } else {
+            barHambre.setValor(0);
+            barFelicidad.setValor(0);
+            barSalud.setValor(0);
+            barHigiene.setValor(0);
         }
+        lblDinero.setText("💰 $" + (int) juego.getTienda().getPresupuesto());
     }
 
     private void mostrarMochila(){
@@ -468,7 +487,32 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
                         "\n🧽 Kit de Limpieza: " +
                         juego.getTienda().getCantidadSuministro(modelo.TipoSuministro.KIT_LIMPIEZA);
 
-
         JOptionPane.showMessageDialog(this, mensaje, "Mochila", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void verificarSaludMascota(Mascota mascota) {
+        if (mascota != null && mascota.getSalud() <= 0) {
+            JOptionPane.showMessageDialog(this,
+                    "Oh no... la salud de " + mascota.getNombre() + " ha llegado a 0%.\nHa tenido que ser llevada a un centro de rescate. Has perdido a esta mascota.",
+                    "Mascota Perdida",
+                    JOptionPane.ERROR_MESSAGE);
+
+            juego.perderMascotaActual();
+            actualizarInterfaz();
+            actualizarSelector(); // Usamos actualizarSelector para evitar duplicidad de métodos
+            panelEscena.setMascota(null);
+            panelEscena.repaint();
+        }
+    }
+
+
+    private void verificarVictoria() {
+        if (!victoriaAlcanzada && juego.getTienda().getPresupuesto() >= META_DINERO) {
+            victoriaAlcanzada = true;
+            JOptionPane.showMessageDialog(this,
+                    "¡FELICIDADES!\nHas alcanzado los $" + META_DINERO + " y tu tienda es un éxito total.\nPuedes seguir jugando para expandir tu imperio.",
+                    "¡Victoria!",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 }
