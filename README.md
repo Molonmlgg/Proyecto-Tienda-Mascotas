@@ -30,30 +30,6 @@
 
 ![Captura Pantalla Principal](Captura%20Pantalla%20Principal.PNG)
 
-## [cite_start]Patrones de Diseño Proyecto [cite: 1]
-
-[cite_start]Durante el Proyecto se aplicaron cuatro patrones de diseño fundamentales para asegurar alta cohesión, bajo acoplamiento y escalabilidad. [cite: 2]
-
-### [cite_start]A. Patrones Creacionales [cite: 3]
-
-[cite_start]**Singleton (Clase Tienda):** [cite: 4]
-* [cite_start]**Propósito:** Garantizar que exista una única instancia del inventario y presupuesto compartida en toda la aplicación, proporcionando un punto de acceso global. [cite: 5]
-* [cite_start]**Implementación:** Se privatizó el constructor de Tienda y se expuso el método estático getInstance(). [cite: 6] [cite_start]Esto evita que diferentes partes del código (como el Controlador o los Comandos) creen múltiples tiendas con presupuestos desincronizados. [cite: 7]
-
-[cite_start]**Factory Method (Clase MascotaFactory):** [cite: 8]
-* [cite_start]**Propósito:** Proporcionar una interfaz para crear objetos en una superclase, permitiendo que las subclases alteren el tipo de objetos que se crearán. [cite: 9]
-* **Implementación:** Se utiliza al momento de adoptar. [cite_start]La Tienda no necesita saber si está instanciando un Perro o un Gato; [cite: 10] [cite_start]simplemente le pasa el tipo como un String a la fábrica y esta retorna la instancia polimórfica correcta, centralizando la lógica de creación. [cite: 11]
-
-### [cite_start]B. Patrones de Comportamiento [cite: 12]
-
-[cite_start]**Observer (Interfaz EstadoObservador):** [cite: 13]
-* [cite_start]**Propósito:** Definir un mecanismo de suscripción para notificar a múltiples objetos sobre cualquier evento que le suceda al objeto que están observando. [cite: 14]
-* [cite_start]**Implementación:** Ventana Principal implementa esta interfaz y se "suscribe" a la Mascota activa. [cite: 15] [cite_start]Así, cuando el GameLoop desgasta el hambre o la felicidad, la mascota notifica automáticamente a la vista para que se repinte. [cite: 16] [cite_start]Esto eliminó la necesidad de forzar el refresco de la Ul manualmente desde el Controlador, logrando un desacoplamiento total entre el Modelo y la Vista. [cite: 17]
-
-[cite_start]**Commando (Interfaz Accion Cuidado y sus implementaciones):** [cite: 18]
-* [cite_start]**Propósito:** Convertir una solicitud en un objeto independiente que contiene toda la información sobre la solicitud. [cite: 19]
-* [cite_start]**Implementación:** Los botones de acción (Alimentar, Jugar, Curar, Limpiar) ya no ejecutan lógica condicional dentro del Controlador Juego. [cite: 20] [cite_start]En su lugar, instancian comandos (ComandoAlimentar, etc.) que encapsulan el costo monetario, el consumo de suministro y el efecto sobre la mascota. [cite: 21] [cite_start]Si a futuro se requiere añadir una acción como "Pasear", solo se crea una nueva clase Comando sin tocar la arquitectura existente. [cite: 22]
-
 ## Decisiones Importantes y Mejoras
 
 Esta sección detalla las decisiones importantes que el equipo tomó a lo largo del proyecto, destacando especialmente los cambios aportados a la temática central. Más allá de la planificación inicial de los patrones de diseño y la arquitectura reflejada en el diagrama UML, el equipo demostró un gran nivel de adaptación al tomar decisiones críticas durante la codificación. 
