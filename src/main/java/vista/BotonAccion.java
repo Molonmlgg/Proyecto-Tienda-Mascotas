@@ -18,6 +18,12 @@ public class BotonAccion extends JButton {
     private final Color colorBase;
     private boolean sobreElBoton = false;
 
+
+    /**
+     * Crea un botón de acción con estilo cálido.
+     * @param texto texto mostrado en el botón
+     * @param colorBase color base usado para el relleno y el degradado del botón
+     */
     public BotonAccion(String texto, Color colorBase) {
         super(texto);
         this.colorBase = colorBase;

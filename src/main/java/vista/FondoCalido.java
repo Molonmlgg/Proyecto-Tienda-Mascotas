@@ -13,6 +13,11 @@ import java.awt.*;
  */
 public class FondoCalido extends JPanel {
 
+
+    /**
+     * Crea un panel de fondo cálido decorativo.
+     * @param layout administrador de layout que se aplicará al panel
+     */
     public FondoCalido(LayoutManager layout) {
         super(layout);
         setOpaque(true);

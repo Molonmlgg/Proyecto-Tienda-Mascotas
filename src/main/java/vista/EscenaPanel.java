@@ -25,9 +25,18 @@ public class EscenaPanel extends JPanel {
     private static final int[] FLORES_X = {40, 110, 250, 340, 430, 520, 610, 700, 780, 860};
     private static final int[] FLORES_TIPO = {0, 1, 0, 2, 1, 0, 2, 1, 0, 2};
 
+    /**
+     * Define la mascota que se dibujará en la escena.
+     * @param mascota la mascota activa, o {@code null} para no dibujar ninguna
+     */
     public void setMascota(Mascota mascota) { this.mascota = mascota; }
-    public void setFrame(int frame) { this.frame = frame; }
 
+    /**
+     * Actualiza el frame actual, usado para animar elementos de la escena
+     * (nubes, sol, respiración de la mascota, etc.).
+     * @param frame número de frame actual
+     */
+    public void setFrame(int frame) { this.frame = frame; }
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

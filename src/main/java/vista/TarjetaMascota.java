@@ -19,6 +19,12 @@ public class TarjetaMascota extends JButton {
     private final IconosPintados.Tipo icono;
     private boolean sobreLaTarjeta = false;
 
+    /**
+     * Crea una tarjeta seleccionable para un tipo de mascota.
+     * @param nombre texto mostrado en la tarjeta (nombre del tipo de mascota)
+     * @param icono ícono vectorial asociado al tipo de mascota
+     * @param colorBase color principal usado en el borde y la insignia
+     */
     public TarjetaMascota(String nombre, IconosPintados.Tipo icono, Color colorBase) {
         super(nombre);
         this.icono = icono;
@@ -89,6 +95,9 @@ public class TarjetaMascota extends JButton {
         g2.dispose();
     }
 
+    /**
+     * @return el tamaño preferido de la tarjeta (210x200 px)
+     */
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(210, 200);

@@ -20,6 +20,13 @@ public class BarraNivel extends JComponent {
     private final IconosPintados.Tipo icono;
     private final Color colorPrincipal;
 
+    /**
+     * Crea una nueva barra de nivel con estilo de píldora y una insignia circular.
+     *
+     * @param etiqueta texto descriptivo que se muestra a la derecha (ej. "Hambre")
+     * @param icono tipo de ícono a dibujar dentro de la insignia
+     * @param colorPrincipal color base para el degradado de la barra y la insignia
+     */
     public BarraNivel(String etiqueta, IconosPintados.Tipo icono, Color colorPrincipal) {
         this.etiqueta = etiqueta;
         this.icono = icono;

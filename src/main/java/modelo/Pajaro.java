@@ -7,15 +7,27 @@ package modelo;
  */
 public class Pajaro extends Mascota implements Jugable {
 
+    /**
+     * Crea un nuevo Pájaro.
+     * @param nombre nombre asignado a la mascota
+     * @param precioCompra precio pagado por la mascota
+     */
     public Pajaro(String nombre, double precioCompra) {
         super(nombre, precioCompra);
     }
 
+    /**
+     * Emite el sonido característico del pájaro por consola.
+     */
     @Override
     public void emitirSonido() {
         System.out.println(getNombre() + " canta: ¡Pío pío!");
     }
 
+    /**
+     * Alimenta al pájaro con semillas, reduciendo su hambre en 15
+     * y aumentando su felicidad en 15.
+     */
     @Override
     public void alimentar() {
         System.out.println("Alimentando a " + getNombre() + " con semillas.");
@@ -23,6 +35,10 @@ public class Pajaro extends Mascota implements Jugable {
         setNivelFelicidad(getNivelFelicidad() + 15);
     }
 
+    /**
+     * Juega con el pájaro usando la campanita de su jaula. Aumenta la
+     * felicidad en 15 y el hambre en 5.
+     */
     @Override
     public void jugar() {
         System.out.println(getNombre() + " está jugando con la campanita de su jaula.");

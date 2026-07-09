@@ -9,12 +9,18 @@ import modelo.TipoSuministro;
  * @author Cristóbal Araya Lillo
  */
 public class ComandoAlimentar implements AccionCuidado {
+
+    /**
+     * Alimenta a la mascota, consumiendo una unidad de Comida Premium del inventario.
+     * @param mascota la mascota a alimentar
+     * @param tienda la tienda que provee el suministro
+     * @return true si había comida disponible y se alimentó a la mascota; false en caso contrario
+     */
     @Override
     public boolean ejecutar(Mascota mascota, Tienda tienda) {
         if (mascota == null) return false;
         if (tienda.consumirSuministro(TipoSuministro.COMIDA_PREMIUM)) {
             mascota.alimentar();
-            //Elimine el ganar dinero por alimentar
             return true;
         }
         return false;

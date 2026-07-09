@@ -16,6 +16,15 @@ public final class RenderizadorMascota {
 
     private RenderizadorMascota() {}
 
+    /**
+     * Dibuja la mascota indicada según su tipo concreto, aplicando una
+     * leve animación de respiración vertical basada en el frame actual.
+     * @param g2 contexto gráfico donde se dibuja
+     * @param mascota la mascota a renderizar (si es {@code null}, no dibuja nada)
+     * @param frame número de frame actual, usado para animar
+     * @param cx coordenada x del centro donde se dibuja la mascota
+     * @param cy coordenada y del centro donde se dibuja la mascota
+     */
     public static void dibujar(Graphics2D g2, Mascota mascota, int frame, int cx, int cy) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         // Respiración suave

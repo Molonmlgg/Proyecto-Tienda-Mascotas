@@ -20,6 +20,8 @@ public abstract class Mascota {
     /** Nivel mínimo y máximo permitido para los atributos que le daremos a las mascotas*/
     private static final int MIN_NIVEL = 0;
     private static final int MAX_NIVEL = 100;
+
+    /** Marca de tiempo (ms) en que la mascota fue adoptada, usada para calcular su valor de venta. */
     private long tiempoAdopcion;
 
     private String nombre;
@@ -237,14 +239,26 @@ public abstract class Mascota {
         setNivelFelicidad(getNivelFelicidad() + cantidad);
     }
 
+    /**
+     * Disminuye el nivel de felicidad de la mascota.
+     * @param cantidad puntos de felicidad a restar
+     */
     public void disminuirFelicidad(int cantidad){
         setNivelFelicidad(getNivelFelicidad() - cantidad);
     }
 
+    /**
+     * Disminuye el nivel de higiene de la mascota.
+     * @param cantidad puntos de higiene a restar
+     */
     public void disminuirHigiene(int cantidad){
         setHigiene(getHigiene() - cantidad);
     }
 
+    /**
+     * Disminuye el nivel de salud de la mascota.
+     * @param cantidad puntos de salud a restar
+     */
     public void disminuirSalud(int cantidad){
         setSalud(getSalud() - cantidad);
     }

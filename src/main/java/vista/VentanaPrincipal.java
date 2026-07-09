@@ -178,6 +178,13 @@ public class VentanaPrincipal extends JFrame implements EstadoObservador {
         }
     }
 
+
+    /**
+     * Construye y configura el panel del juego principal (HUD, controles y escena).
+     * Incluye los botones de acción, tiendas, y las barras de estado de la mascota activa.
+     *
+     * @return JPanel configurado con la vista principal del simulador.
+     */
     private JPanel crearPanelJuego() {
         JPanel panelJuego = new JPanel(new BorderLayout());
         
