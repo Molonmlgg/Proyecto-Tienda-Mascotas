@@ -10,6 +10,18 @@
 
 ![Diagrama de Casos de Uso](Diagrama%20casos%20de%20uso.jpeg)
 
+### Diagrama de Clases General
+
+![UML General](uml-general.png)
+
+### Diagrama de Clases: Modelo y Patrones de Diseño
+
+![UML Modelo y Patrones](uml-patrones+modelo.png)
+
+### Diagrama de Clases: Vista
+
+![UML Vista](uml-vista.png)
+
 ## Interfaz Gráfica
 
 ![Elección Mascota Inicial](Eleccion%20mascota%20inicial.PNG)
